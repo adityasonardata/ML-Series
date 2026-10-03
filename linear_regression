@@ -1,0 +1,95 @@
+"""
+Video 4: Linear Regression - Your First ML Model
+--------------------------------------------------
+Predicting Salary based on Years of Experience.
+
+Install requirements first (if needed):
+    pip install scikit-learn matplotlib numpy pandas
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+
+# ------------------------------------------------------
+# BLOCK 1: Create simple sample data
+# ------------------------------------------------------
+# Years of experience (feature)
+years_experience = np.array([1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5,
+                              5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10]).reshape(-1, 1)
+
+# Salary in thousands $ (label) - roughly linear with a bit of noise
+salary = np.array([35, 37, 40, 43, 46, 49, 52, 55, 59,
+                    62, 65, 68, 72, 75, 78, 82, 85, 88, 92])
+
+print("Sample data ready.")
+print("Years of Experience:", years_experience.ravel())
+print("Salary ($'000):", salary)
+
+# ------------------------------------------------------
+# BLOCK 2: Train/Test Split (recall Video 3!)
+# ------------------------------------------------------
+X_train, X_test, y_train, y_test = train_test_split(
+    years_experience, salary, test_size=0.2, random_state=42
+)
+
+print(f"\nTraining samples: {len(X_train)}")
+print(f"Test samples: {len(X_test)}")
+
+# ------------------------------------------------------
+# BLOCK 3: Create and Train the Linear Regression Model
+# ------------------------------------------------------
+model = LinearRegression()
+model.fit(X_train, y_train)  # This is where "gradient descent" style fitting happens
+
+print("\nModel trained successfully!")
+
+# ------------------------------------------------------
+# BLOCK 4: Check what the model learned (slope & intercept)
+# ------------------------------------------------------
+slope = model.coef_[0]
+intercept = model.intercept_
+
+print(f"\nLearned Slope (m): {slope:.2f}")
+print(f"Learned Base Value / Intercept (b): {intercept:.2f}")
+print(f"Model equation: Salary = {slope:.2f} * Experience + {intercept:.2f}")
+
+# ------------------------------------------------------
+# BLOCK 5: Make a Prediction + Evaluate on Test Data
+# ------------------------------------------------------
+# Predict salary for someone with 6 years of experience
+new_experience = np.array([[6]])
+predicted_salary = model.predict(new_experience)
+print(f"\nPredicted salary for 6 years experience: ${predicted_salary[0]:.2f}k")
+
+# Evaluate how well the model performs on unseen test data
+y_pred_test = model.predict(X_test)
+mse = mean_squared_error(y_test, y_pred_test)
+r2 = r2_score(y_test, y_pred_test)
+
+print(f"\nModel Evaluation on Test Data:")
+print(f"Mean Squared Error: {mse:.2f}")
+print(f"R² Score: {r2:.2f}  (closer to 1.0 = better fit)")
+
+# ------------------------------------------------------
+# BLOCK 6: Visualize the Results
+# ------------------------------------------------------
+plt.figure(figsize=(8, 6))
+plt.scatter(years_experience, salary, color="royalblue", label="Actual Data")
+plt.plot(years_experience, model.predict(years_experience),
+         color="crimson", linewidth=2, label="Regression Line (Model)")
+plt.scatter(new_experience, predicted_salary, color="green", s=120,
+            marker="X", label="New Prediction (6 yrs)", zorder=5)
+
+plt.title("Linear Regression: Salary vs Years of Experience")
+plt.xlabel("Years of Experience")
+plt.ylabel("Salary ($'000)")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.savefig("linear_regression_plot.png", dpi=150)
+plt.show()
+
+print("\nPlot saved as 'linear_regression_plot.png'")
